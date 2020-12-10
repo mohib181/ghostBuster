@@ -41,8 +41,7 @@ public class Game {
         double sum = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                System.out.format("%.4f", board[i][j]);
-                System.out.print("  ");
+                System.out.printf("%.1f ", (board[i][j]*100));
                 sum += board[i][j];
             }
             System.out.println();
@@ -98,23 +97,17 @@ public class Game {
         Random random = new Random(System.currentTimeMillis());
         int k = random.nextInt(100);
         if(k < probBound*100) {
-            //choose from sideMove
+            //choose from side neighbors
             ghostPosition = sideNeighbors.get(random.nextInt(sideNeighbors.size()));
-            //System.out.println("k: "+ k + " side: " + ghostPosition.toString());
         }
         else {
             int t = random.nextInt(diagNeighbors.size()+1);
             if (t < diagNeighbors.size()) {
                 //choosing diag move
                 ghostPosition = diagNeighbors.get(t);
-                //System.out.println("k: "+ k + " t: "+ t + " diag: " + ghostPosition.toString());
             }
-            else {
-                //stay
-                //System.out.println("k: "+ k + " t: "+ t + " stay: " + ghostPosition.toString());
-            }
+            //else staying in same position
         }
-
         //System.out.println("Ghost moved to " + ghostPosition.toString());
     }
 
@@ -152,10 +145,11 @@ public class Game {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 board[i][j] = (1.0/sum)*temp[i][j];
+                //board[i][j] = temp[i][j];
             }
         }
 
-        System.out.println("advanced Time");
+        System.out.println("Time advanced");
         makeGhostMove();
         printBoard();
     }
@@ -170,7 +164,7 @@ public class Game {
         return 'g';
     }
 
-    public void sense(int x, int y) {
+    public char sense(int x, int y) {
         int distance = getDistance(x, y);
         char color = getSenseColor(distance);
 
@@ -196,5 +190,11 @@ public class Game {
         }
         System.out.println("sensed: (" + x + "," + y + ") distance: " + distance + " color: " + color);
         printBoard();
+
+        return color;
+    }
+
+    public boolean checkGhost(int x, int y) {
+        return (x == ghostPosition.x && y == ghostPosition.y);
     }
 }

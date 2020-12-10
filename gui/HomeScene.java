@@ -15,46 +15,19 @@ import java.util.ResourceBundle;
 
 public class HomeScene implements Initializable {
     public ComboBox<String> gameSizeComboBox;
-    public ComboBox<String> gameModeComboBox;
-    public TextField player1;
-    public TextField player2;
     public Button submit;
-    public Label secondLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gameSizeComboBox.getItems().addAll("6x6", "8x8");
-        gameModeComboBox.getItems().addAll("Human vs Human", "Human vs Computer");
-
-        gameSizeComboBox.setValue("6x6");
-        gameModeComboBox.setValue("Human vs Human");
-    }
-
-    public void gameModeChanged(ActionEvent actionEvent) {
-        System.out.println(gameModeComboBox.getValue());
-        if (gameModeComboBox.getValue().equals("Human vs Computer")) {
-            player2.clear();
-            player2.setDisable(true);
-            secondLabel.setDisable(true);
-        }
-        else {
-            player2.setDisable(false);
-            secondLabel.setDisable(false);
-        }
+        gameSizeComboBox.getItems().addAll("5x5", "9x9", "10x10", "11x11", "12x12");
+        gameSizeComboBox.setValue("5x5");
     }
 
     public void startGame(ActionEvent actionEvent) throws IOException {
-        if (player1.getText().equals("")) player1.setText("Player1");
-        if (player2.getText().equals("")) {
-            if (gameModeComboBox.getValue().equals("Human vs Human")) player2.setText("Player2");
-            else player2.setText("Computer");
-        }
-        String data = gameSizeComboBox.getValue().charAt(0) + "&&&&" + gameModeComboBox.getValue() + "&&&&" + player1.getText() + "&&&&" + player2.getText();
 
-        System.out.println("Player 1: " + player1.getText());
-        System.out.println("Player 2: " + player2.getText());
-        System.out.println("Game Mode: " + gameModeComboBox.getValue());
-        System.out.println("Game Size: " + gameSizeComboBox.getValue());
+        String data = gameSizeComboBox.getValue().substring(0,gameSizeComboBox.getValue().indexOf('x'));
+
+        System.out.println("Game Size: " + data);
         System.out.println("game is on");
 
 

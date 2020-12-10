@@ -1,6 +1,8 @@
 package gui;
 
-import test.Main;
+import javafx.fxml.Initializable;
+import javafx.scene.control.ComboBox;
+import test.Game;
 import test.Position;
 
 import javafx.event.ActionEvent;
@@ -21,44 +23,33 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.ResourceBundle;
 
 
 public class GameScene {
+    public Game game;
     public int gameSize;
-    //public Game game;
-
-    public String gameMode;
-    public Circle selectedCircle;
-    public Pane selectedPane;
 
     public Button back;
     public GridPane board;
-    public Label turnLabel;
-    public Label moveLabel;
+    public Label ghostLabel;
     public Label gameSizeLabel;
-    public Label gameModeLabel;
-    public Label player1NameLabel;
-    public Label player2NameLabel;
-    public Label player1ColorLabel;
-    public Label player2ColorLabel;
+    public Pane selectedPane;
 
-    public void initGame(String string) {
-        initData(string);               //game data Initialization
-        initBoard();                    //game board Initialization
-        //game = new Game(gameSize);      //game initialization
-    }
+    public void initGame(String size) {
+        gameSize = Integer.parseInt(size);
+        gameSizeLabel.setText(": " + size + "x" + size);
 
-    public void initData(String string) {
-        String[] data = string.split("&&&&");
-
-        gameSize = Integer.parseInt(data[0]);
-        gameSizeLabel.setText(": " + data[0] + "x" + data[0]);
+        game = new Game(gameSize);
+        initBoard();
     }
 
     public void initBoard() {
         int n = gameSize;
+        ghostLabel.setText("");
         for (int i = 0; i < n; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
             colConst.setPercentWidth(100.0 / n);
@@ -78,7 +69,7 @@ public class GameScene {
             }
         }
 
-        double defaultValue = 1.0/n;
+        double defaultValue = 100.0/(n*n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 board.getChildren().add(createLabel(i, j, defaultValue));
@@ -101,7 +92,7 @@ public class GameScene {
 
         label.setId(row + "_" + col);
         label.setText(Double.toString(defaultValue));
-        label.setDisable(true);
+        label.setStyle("-fx-font-weight: bold");
         label.getProperties().put("gridpane-row", row);
         label.getProperties().put("gridpane-column", col);
 
@@ -156,7 +147,6 @@ public class GameScene {
         return null;
     }
 
-
     public void makeMove(Circle circle, Pane pane) {
         int row = (int) circle.getProperties().get("gridpane-row");
         int col = (int) circle.getProperties().get("gridpane-column");
@@ -186,6 +176,58 @@ public class GameScene {
         //checkWinner();
     }
 
+    public void updateGameBoard() {
+        resetAllPane();
+        double[][] gameBoard = game.getBoard();
+        for (int i = 0; i < gameSize; i++) {
+            for (int j = 0; j < gameSize; j++) {
+                searchLabelByID(i + "_" + j).setText(Double.toString(gameBoard[i][j]*100));
+            }
+        }
+    }
+
+    public void advanceTime() {
+        game.advanceTime();
+        updateGameBoard();
+    }
+
+    public void sense() {
+        int row = (int) selectedPane.getProperties().get("gridpane-row");
+        int col = (int) selectedPane.getProperties().get("gridpane-column");
+
+        String style;
+        char color = game.sense(row, col);
+
+        if (color == 'r') style = "-fx-background-color: #FF0000; -fx-border-color: #000000";
+        else if (color == 'y') style = "-fx-background-color: #fcba03; -fx-border-color: #000000";
+        else style = "-fx-background-color: #00ff00; -fx-border-color: #000000";
+
+        updateGameBoard();
+
+        int index = row*board.getColumnCount()+col;
+        board.getChildren().get(index).setStyle(style);
+    }
+
+    public void bust() {
+        int row = (int) selectedPane.getProperties().get("gridpane-row");
+        int col = (int) selectedPane.getProperties().get("gridpane-column");
+
+        boolean result = game.checkGhost(row, col);
+        if (result) {
+            System.out.println("found ghost");
+            ghostLabel.setText("Ghost Found");
+
+            game.resetBoard();
+            board.setDisable(true);
+
+        }
+        else {
+            ghostLabel.setText("Ghost Not Found");
+            game.sense(row, col);
+        }
+
+        updateGameBoard();
+    }
 
     public void showWinner(String winnerName) {
         Stage window = new Stage();
@@ -209,13 +251,14 @@ public class GameScene {
     }
 
     public void clickOnPane(MouseEvent mouseEvent) {
-        Pane pane = (Pane) mouseEvent.getSource();
         selectedPane = (Pane) mouseEvent.getSource();
-        //activate two buttons sense and bust
+        sense();
+
+        /*//activate two buttons sense and bust
         if (pane.getStyle().equals("-fx-background-color: #00d974; -fx-border-color: #000000")) {
             makeMove(selectedCircle, pane);
         }
-        resetAllPane();
+        resetAllPane();*/
     }
 
     public void showMoves(MouseEvent mouseEvent) {
@@ -244,8 +287,8 @@ public class GameScene {
 
         stage.setScene(homePageScene);
         stage.setTitle("Ghost Buster | Home");
-        stage.setWidth(600);
-        stage.setHeight(300);
+        stage.setWidth(500);
+        stage.setHeight(150);
         stage.show();
     }
 }
