@@ -32,7 +32,7 @@
             <Font size="15.0" />
          </font>
         </Label>
-        <Button fx:id="submit" mnemonicParsing="false" onAction="#startGame" text="Start Game" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+        <Button fx:id="submit" mnemonicParsing="false" onAction="#startGame" prefHeight="26.0" prefWidth="101.0" text="Start" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
             <GridPane.margin>
                 <Insets />
             </GridPane.margin>

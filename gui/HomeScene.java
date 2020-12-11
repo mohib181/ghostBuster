@@ -45,8 +45,8 @@ public class HomeScene implements Initializable {
 
         stage.setScene(gamePageScene);
         stage.setTitle("Ghost Buster | Game");
-        stage.setWidth(600);
-        stage.setHeight(600);
+        stage.setWidth(800);
+        stage.setHeight(800);
         stage.show();
     }
 }

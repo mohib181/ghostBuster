@@ -131,7 +131,7 @@ public class Game {
                     //System.out.println("side: " + sideNeighbor.toString() + " sideProb: " + sideProb + "neighbor: " + board[sideNeighbor.x][sideNeighbor.y]);
                 }
                 for (Position diagNeighbor : diagNeighbors) {
-                    double diagProb = (1-probBound)/getDiagNeighbors(diagNeighbor.x, diagNeighbor.y).size();
+                    double diagProb = (1-probBound)/(getDiagNeighbors(diagNeighbor.x, diagNeighbor.y).size()+1);
                     value += board[diagNeighbor.x][diagNeighbor.y]*diagProb;
                     //System.out.println("diag: " + diagNeighbor.toString() + " diagProb: " + diagProb + "neighbor: " + board[diagNeighbor.x][diagNeighbor.y]);
                 }

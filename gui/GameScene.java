@@ -1,9 +1,7 @@
 package gui;
 
-import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
+import javafx.geometry.Insets;
 import test.Game;
-import test.Position;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -15,29 +13,29 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 
 public class GameScene {
     public Game game;
     public int gameSize;
+    public Pane selectedPane;
 
     public Button back;
     public GridPane board;
     public Label ghostLabel;
     public Label gameSizeLabel;
-    public Pane selectedPane;
+    public Button advanceTimeButton;
+    public Button bustButton;
 
     public void initGame(String size) {
         gameSize = Integer.parseInt(size);
@@ -50,6 +48,11 @@ public class GameScene {
     public void initBoard() {
         int n = gameSize;
         ghostLabel.setText("");
+        ghostLabel.setFont(Font.font(15));
+        ghostLabel.setStyle("-fx-font-weight: bold");
+
+        bustButton.setDisable(true);
+
         for (int i = 0; i < n; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
             colConst.setPercentWidth(100.0 / n);
@@ -76,6 +79,8 @@ public class GameScene {
             }
         }
 
+        updateGameBoard();
+
         /*double radius = board.getColumnConstraints().get(0).getPercentWidth()*1.5;
         for (int i = 0; i < n-2; i++) {
             board.getChildren().add(createCircle(0, i+1, radius, "BLACK"));
@@ -91,29 +96,20 @@ public class GameScene {
         Label label = new Label();
 
         label.setId(row + "_" + col);
-        label.setText(Double.toString(defaultValue));
+        label.setFont(Font.font(15));
         label.setStyle("-fx-font-weight: bold");
+
         label.getProperties().put("gridpane-row", row);
         label.getProperties().put("gridpane-column", col);
+        label.setDisable(true);
 
         return label;
     }
 
-    public Circle createCircle(int row, int col, double radius, String color) {
-        Circle circle = new Circle(radius);
-
-        circle.setId(color + "_" + row + "_" + col);
-        circle.setFill(Paint.valueOf(color));
-        circle.getProperties().put("gridpane-row", row);
-        circle.getProperties().put("gridpane-column", col);
-        circle.setOnMouseClicked(this::showMoves);
-
-        return circle;
-    }
-
     public Pane createPane(int row, int col) {
         Pane pane = new Pane();
-        pane.setStyle("-fx-background-color: #3C64A3; -fx-border-color: #000000");
+        //pane.setStyle("-fx-background-color: #3C64A3; -fx-border-color: #000000");
+        pane.setStyle("-fx-border-color: #000000");
         pane.getProperties().put("gridpane-row", row);
         pane.getProperties().put("gridpane-column", col);
         pane.setOnMouseClicked(this::clickOnPane);
@@ -124,7 +120,8 @@ public class GameScene {
     public void resetAllPane() {
         for (Node node: board.getChildren()) {
             if (node instanceof Pane) {
-                node.setStyle("-fx-background-color: #3C64A3; -fx-border-color: #000000");
+                //node.setStyle("-fx-background-color: #3C64A3; -fx-border-color: #000000");
+                node.setStyle("-fx-border-color: #000000");
             }
         }
     }
@@ -138,71 +135,39 @@ public class GameScene {
         return null;
     }
 
-    public Circle searchCircleByID(String circleID) {
-        for (Node node: board.getChildren()) {
-            if (node instanceof Circle) {
-                if (node.getId().contains(circleID)) return (Circle) node;
-            }
-        }
-        return null;
-    }
-
-    public void makeMove(Circle circle, Pane pane) {
-        int row = (int) circle.getProperties().get("gridpane-row");
-        int col = (int) circle.getProperties().get("gridpane-column");
-        int moveAheadRow = (int) pane.getProperties().get("gridpane-row");
-        int moveAheadCol = (int) pane.getProperties().get("gridpane-column");
-
-        Circle moveAheadCircle = searchCircleByID(moveAheadRow + "_" + moveAheadCol);
-        if (moveAheadCircle != null) board.getChildren().remove(moveAheadCircle);                   //removing the circle in target pane if there is any(Capture Move)
-
-        board.getChildren().remove(circle);
-
-        //updating circle position
-        circle.getProperties().clear();
-        circle.getProperties().put("gridpane-row", moveAheadRow);
-        circle.getProperties().put("gridpane-column", moveAheadCol);
-
-        //setting up circleID with the new Position
-        String circleID = circle.getId().replace("_" + row + "_" + col, "_" + moveAheadRow + "_" + moveAheadCol);
-        circle.setId(circleID);
-
-        board.getChildren().add(circle);
-
-        //currentPlayer.makeMove(game.getBoard(), row, col, moveAheadRow, moveAheadCol);
-        //System.out.println(currentPlayer.getPlayerName() + ": (" + row + "," + col + ")--->(" + moveAheadRow + "," + moveAheadCol + ")" );
-        //game.printBoard();
-
-        //checkWinner();
-    }
-
     public void updateGameBoard() {
-        resetAllPane();
+        DecimalFormat df = new DecimalFormat("#.###");
+        df.setRoundingMode(RoundingMode.CEILING);
+
         double[][] gameBoard = game.getBoard();
         for (int i = 0; i < gameSize; i++) {
             for (int j = 0; j < gameSize; j++) {
-                searchLabelByID(i + "_" + j).setText(Double.toString(gameBoard[i][j]*100));
+                searchLabelByID(i + "_" + j).setText(df.format(gameBoard[i][j]*100));
             }
         }
     }
 
     public void advanceTime() {
+        resetAllPane();
+        ghostLabel.setText("");
+        bustButton.setDisable(true);
+
         game.advanceTime();
         updateGameBoard();
     }
 
     public void sense() {
+        ghostLabel.setText("");
         int row = (int) selectedPane.getProperties().get("gridpane-row");
         int col = (int) selectedPane.getProperties().get("gridpane-column");
 
         String style;
         char color = game.sense(row, col);
+        updateGameBoard();
 
         if (color == 'r') style = "-fx-background-color: #FF0000; -fx-border-color: #000000";
         else if (color == 'y') style = "-fx-background-color: #fcba03; -fx-border-color: #000000";
         else style = "-fx-background-color: #00ff00; -fx-border-color: #000000";
-
-        updateGameBoard();
 
         int index = row*board.getColumnCount()+col;
         board.getChildren().get(index).setStyle(style);
@@ -216,33 +181,38 @@ public class GameScene {
         if (result) {
             System.out.println("found ghost");
             ghostLabel.setText("Ghost Found");
+            ghostLabel.setTextFill(Paint.valueOf("green"));
 
             game.resetBoard();
             board.setDisable(true);
-
+            advanceTimeButton.setDisable(true);
+            bustButton.setDisable(true);
         }
         else {
             ghostLabel.setText("Ghost Not Found");
+            ghostLabel.setTextFill(Paint.valueOf("red"));
             game.sense(row, col);
         }
 
+        bustButton.setDisable(true);
+        resetAllPane();
         updateGameBoard();
     }
 
-    public void showWinner(String winnerName) {
+    public void showResult(String result) {
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);
 
-        window.setTitle("Winner");
+        window.setTitle("Ghost Check");
 
-        Label winnerLabel = new Label();
-        winnerLabel.setText(winnerName + " has won");
+        Label label = new Label();
+        label.setText(result);
 
         Button closeButton = new Button("OK");
         closeButton.setOnAction(e -> window.close());
 
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(winnerLabel, closeButton);
+        vbox.getChildren().addAll(label, closeButton);
         vbox.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(vbox, 250, 100);
@@ -252,31 +222,8 @@ public class GameScene {
 
     public void clickOnPane(MouseEvent mouseEvent) {
         selectedPane = (Pane) mouseEvent.getSource();
+        bustButton.setDisable(false);
         sense();
-
-        /*//activate two buttons sense and bust
-        if (pane.getStyle().equals("-fx-background-color: #00d974; -fx-border-color: #000000")) {
-            makeMove(selectedCircle, pane);
-        }
-        resetAllPane();*/
-    }
-
-    public void showMoves(MouseEvent mouseEvent) {
-        /*resetAllPane();
-        selectedCircle = (Circle) mouseEvent.getSource();
-
-        int row = (int) selectedCircle.getProperties().get("gridpane-row");
-        int col = (int) selectedCircle.getProperties().get("gridpane-column");
-
-        int index = row*board.getColumnCount()+col;
-        board.getChildren().get(index).setStyle("-fx-background-color: #fcba03; -fx-border-color: #000000");
-
-        ArrayList<Position> moves = currentPlayer.generateMoves(game.getBoard(), row, col);
-        for (Position pos: moves) {
-            index = pos.getX()*board.getColumnCount()+pos.getY();
-            board.getChildren().get(index).setStyle("-fx-background-color: #00d974; -fx-border-color: #000000");
-        }*/
-        //System.out.println("Showed All Possible Moves");
     }
 
     public void backToHomeScene(ActionEvent actionEvent) throws IOException {
