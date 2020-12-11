@@ -70,7 +70,7 @@
          <children>
             <Button fx:id="advanceTimeButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#advanceTime" text="Advance Time" />
             <Region prefHeight="50.0" prefWidth="174.0" />
-            <Button fx:id="bustButton" contentDisplay="CENTER" mnemonicParsing="false" onAction="#bust" prefHeight="26.0" prefWidth="83.0" text="Bust" />
+            <Button fx:id="bustButton" contentDisplay="CENTER" mnemonicParsing="false" onAction="#clickOnBust" prefHeight="26.0" prefWidth="83.0" text="Bust" />
          </children>
         </HBox>
     </bottom>

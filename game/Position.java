@@ -1,4 +1,4 @@
-package test;
+package game;
 
 public class Position {
     int x;

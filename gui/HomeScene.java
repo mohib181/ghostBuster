@@ -19,8 +19,8 @@ public class HomeScene implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gameSizeComboBox.getItems().addAll("5x5", "9x9", "10x10", "11x11", "12x12");
-        gameSizeComboBox.setValue("5x5");
+        gameSizeComboBox.getItems().addAll("8x8", "9x9", "10x10", "11x11", "12x12", "13x13");
+        gameSizeComboBox.setValue("9x9");
     }
 
     public void startGame(ActionEvent actionEvent) throws IOException {
@@ -45,8 +45,8 @@ public class HomeScene implements Initializable {
 
         stage.setScene(gamePageScene);
         stage.setTitle("Ghost Buster | Game");
-        stage.setWidth(800);
-        stage.setHeight(800);
+        stage.setWidth(600);
+        stage.setHeight(600);
         stage.show();
     }
 }

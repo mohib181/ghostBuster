@@ -1,4 +1,4 @@
-package test;
+package game;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -47,7 +47,7 @@ public class Game {
             System.out.println();
         }
 
-        System.out.println("totalProb: " + sum);
+        //System.out.println("totalProb: " + sum);
         System.out.println("Ghost is at " + ghostPosition.toString());
         System.out.println("============================");
     }

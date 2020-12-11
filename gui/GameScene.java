@@ -1,7 +1,6 @@
 package gui;
 
-import javafx.geometry.Insets;
-import test.Game;
+import game.Game;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -28,6 +27,7 @@ import java.text.DecimalFormat;
 public class GameScene {
     public Game game;
     public int gameSize;
+    public boolean senseMode;
     public Pane selectedPane;
 
     public Button back;
@@ -72,13 +72,13 @@ public class GameScene {
             }
         }
 
-        double defaultValue = 100.0/(n*n);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                board.getChildren().add(createLabel(i, j, defaultValue));
+                board.getChildren().add(createLabel(i, j));
             }
         }
 
+        senseMode = true;
         updateGameBoard();
 
         /*double radius = board.getColumnConstraints().get(0).getPercentWidth()*1.5;
@@ -92,12 +92,12 @@ public class GameScene {
         }*/
     }
 
-    public Label createLabel(int row, int col, double defaultValue) {
+    public Label createLabel(int row, int col) {
         Label label = new Label();
 
         label.setId(row + "_" + col);
         label.setFont(Font.font(15));
-        label.setStyle("-fx-font-weight: bold");
+        label.setStyle("-fx-color: #002aff; -fx-font-weight: bold");
 
         label.getProperties().put("gridpane-row", row);
         label.getProperties().put("gridpane-column", col);
@@ -163,7 +163,6 @@ public class GameScene {
 
         String style;
         char color = game.sense(row, col);
-        updateGameBoard();
 
         if (color == 'r') style = "-fx-background-color: #FF0000; -fx-border-color: #000000";
         else if (color == 'y') style = "-fx-background-color: #fcba03; -fx-border-color: #000000";
@@ -171,6 +170,8 @@ public class GameScene {
 
         int index = row*board.getColumnCount()+col;
         board.getChildren().get(index).setStyle(style);
+
+        updateGameBoard();
     }
 
     public void bust() {
@@ -179,8 +180,8 @@ public class GameScene {
 
         boolean result = game.checkGhost(row, col);
         if (result) {
-            System.out.println("found ghost");
-            ghostLabel.setText("Ghost Found");
+            System.out.println("ghost busted");
+            ghostLabel.setText("Ghost Busted");
             ghostLabel.setTextFill(Paint.valueOf("green"));
 
             game.resetBoard();
@@ -189,11 +190,12 @@ public class GameScene {
             bustButton.setDisable(true);
         }
         else {
-            ghostLabel.setText("Ghost Not Found");
+            ghostLabel.setText("Missed the ghost");
             ghostLabel.setTextFill(Paint.valueOf("red"));
             game.sense(row, col);
         }
 
+        senseMode = true;
         bustButton.setDisable(true);
         resetAllPane();
         updateGameBoard();
@@ -220,10 +222,16 @@ public class GameScene {
         window.showAndWait();
     }
 
+    public void clickOnBust() {
+        senseMode = false;
+    }
+
     public void clickOnPane(MouseEvent mouseEvent) {
         selectedPane = (Pane) mouseEvent.getSource();
         bustButton.setDisable(false);
-        sense();
+
+        if(senseMode) sense();
+        else bust();
     }
 
     public void backToHomeScene(ActionEvent actionEvent) throws IOException {
