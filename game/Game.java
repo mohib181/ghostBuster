@@ -41,7 +41,7 @@ public class Game {
         double sum = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                System.out.printf("%.1f ", (board[i][j]*100));
+                System.out.printf("%.3f ", (board[i][j]*100));
                 sum += board[i][j];
             }
             System.out.println();
